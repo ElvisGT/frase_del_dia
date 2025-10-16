@@ -48,7 +48,7 @@ async function send_mail(frase) {
 
   await transporter.sendMail({
     from: "Elvis <elvisgt1999@gmail.com>", // Header From:
-    to: "Elvis <elvisgt1999@gmail.com>", // Header To:
+    to: ["Elvis <elvisgt1999@gmail.com>","Katherine <katherineperezgarrido@gmail.com>"], // Header To:
     subject: "Frase motivadora del dia",
     text: frase_str,
   });
