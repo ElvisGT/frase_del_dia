@@ -1,6 +1,10 @@
 {
+  "scripts": {
+    "dev": "node --watch index.js"
+  },
   "dependencies": {
     "dotenv": "^17.2.3",
-    "nodemailer": "^7.0.9"
+    "nodemailer": "^7.0.9",
+    "pexels": "^1.4.0"
   }
 }

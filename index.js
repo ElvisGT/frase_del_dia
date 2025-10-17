@@ -1,13 +1,15 @@
 const fs = require("fs");
+const pexels = require("pexels")
 const dotenv = require("dotenv")
 dotenv.config()
 const nodemailer = require("nodemailer");
 
-function main() {
+async function main() {
   const path = __dirname + "\\data.json";
   const frases = read_file(path);
   const frase_anterior = frases[random_number(frases)];
   let nueva_frase = {};
+  const img_url = await generate_img()
 
   if (frase_anterior == frases[random_number(frases)]) {
     nueva_frase = frases[random_number(frases)];
@@ -15,10 +17,10 @@ function main() {
     nueva_frase = frase_anterior;
   }
 
-
-  send_mail(nueva_frase)
+  send_mail(nueva_frase,img_url)
     .then((msg) => console.log("Enviado correctamente"))
     .catch((err) => console.error("Ha ocurrido el error: " + err))
+
 }
 
 main();
@@ -35,7 +37,7 @@ function random_number(frases) {
   return random_number;
 }
 
-async function send_mail(frase) {
+async function send_mail(frase,img_url) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -48,10 +50,35 @@ async function send_mail(frase) {
 
   await transporter.sendMail({
     from: "Elvis <elvisgt1999@gmail.com>", // Header From:
-    to: ["Elvis <elvisgt1999@gmail.com>","Katherine <katherineperezgarrido@gmail.com>"], // Header To:
+    to: "Elvis <elvisgt1999@gmail.com>", // Header To:
     subject: "Frase motivadora del dia",
-    text: frase_str,
+    html:`
+      <h1>${frase_str}</h1>
+      <img src='cid:foto'/>
+    `,
+    attachments:[
+      {
+        filename:frase_str,
+        path:img_url,
+        cid:'foto'
+
+      }
+    ]
   });
 
+
+}
+
+async function generate_img() {
+  const client = pexels.createClient(process.env.API_KEY)
+  const photo = await client.photos.curated({per_page:1})
+  return new Promise((res,err) => {
+    if(!photo) {
+      err('No se ha podido hacer la peticion')
+    }
+    else{
+      res(photo.photos[0].src.original)
+    }
+  }) 
 
 }
