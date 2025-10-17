@@ -1,21 +1,26 @@
 const fs = require("fs");
+const path = require("path")
 const pexels = require("pexels")
 const dotenv = require("dotenv")
 dotenv.config()
 const nodemailer = require("nodemailer");
 
 async function main() {
-  const path = __dirname + "\\data.json";
-  const frases = read_file(path);
+  const phrases_path = path.join(__dirname,"data","phrases.json");
+  const words_path = path.join(__dirname,'data','words.json')
+  const {frases} = read_file(phrases_path);
+  const {words} = read_file(words_path)
   const frase_anterior = frases[random_number(frases)];
   let nueva_frase = {};
-  const img_url = await generate_img()
+  const random_word = words[random_number(words)]
+  const img_url = await generate_img(random_word,words)
 
   if (frase_anterior == frases[random_number(frases)]) {
     nueva_frase = frases[random_number(frases)];
   } else {
     nueva_frase = frase_anterior;
   }
+
 
   send_mail(nueva_frase,img_url)
     .then((msg) => console.log("Enviado correctamente"))
@@ -26,8 +31,8 @@ async function main() {
 main();
 
 function read_file(path) {
-  const data = JSON.parse(fs.readFileSync(path));
-  const data_arr = data.info;
+  const data = JSON.parse(fs.readFileSync(path))
+  const data_arr = data
 
   return data_arr;
 }
@@ -61,7 +66,6 @@ async function send_mail(frase,img_url) {
         filename:frase_str,
         path:img_url,
         cid:'foto'
-
       }
     ]
   });
@@ -69,9 +73,15 @@ async function send_mail(frase,img_url) {
 
 }
 
-async function generate_img() {
+async function generate_img(word,words) {
   const client = pexels.createClient(process.env.API_KEY)
-  const photo = await client.photos.curated({per_page:1})
+  let photo = await client.photos.search({query:word,per_page:2})
+
+  while(photo.photos.length == 0){
+    query = words[random_number(words)]
+    photo = await client.photos.search({query,per_page:2})
+  }
+
   return new Promise((res,err) => {
     if(!photo) {
       err('No se ha podido hacer la peticion')
