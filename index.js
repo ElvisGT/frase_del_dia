@@ -8,21 +8,21 @@ const nodemailer = require("nodemailer");
 async function main() {
   const phrases_path = path.join(__dirname,"data","phrases.json");
   const words_path = path.join(__dirname,'data','words.json')
-  const {frases} = read_file(phrases_path);
+  const {phrases} = read_file(phrases_path);
   const {words} = read_file(words_path)
-  const frase_anterior = frases[random_number(frases)];
-  let nueva_frase = {};
+  const last_phrase = phrases[random_number(phrases)];
+  let new_phrase = {};
   const random_word = words[random_number(words)]
   const img_url = await generate_img(random_word,words)
 
-  if (frase_anterior == frases[random_number(frases)]) {
-    nueva_frase = frases[random_number(frases)];
+  if (last_phrase == phrases[random_number(phrases)]) {
+    new_phrase = phrases[random_number(phrases)];
   } else {
-    nueva_frase = frase_anterior;
+    new_phrase = last_phrase;
   }
 
 
-  send_mail(nueva_frase,img_url)
+  send_mail(new_phrase,img_url)
     .then((msg) => console.log("Enviado correctamente"))
     .catch((err) => console.error("Ha ocurrido el error: " + err))
 
@@ -37,12 +37,12 @@ function read_file(path) {
   return data_arr;
 }
 
-function random_number(frases) {
-  const random_number = Math.floor(Math.random() * frases.length);
+function random_number(phrases) {
+  const random_number = Math.floor(Math.random() * phrases.length);
   return random_number;
 }
 
-async function send_mail(frase,img_url) {
+async function send_mail(phrase,img_url) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -51,14 +51,14 @@ async function send_mail(frase,img_url) {
     },
   });
 
-  const frase_str = Object.values(frase)[0]
+  const phrase_str = Object.values(phrase)[0]
 
   await transporter.sendMail({
     from: "Elvis <elvisgt1999@gmail.com>", // Header From:
     to: "Elvis <elvisgt1999@gmail.com>", // Header To:
-    subject: "Frase motivadora del dia",
+    subject: "phrase motivadora del dia",
     html:`
-      <h1>${frase_str}</h1>
+      <h1>${phrase_str}</h1>
       <img src='cid:foto'/>
     `,
     attachments:[
