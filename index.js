@@ -63,7 +63,6 @@ async function send_mail(frase,img_url) {
     `,
     attachments:[
       {
-        filename:frase_str,
         path:img_url,
         cid:'foto'
       }
